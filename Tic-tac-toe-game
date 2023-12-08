@@ -1,0 +1,70 @@
+class Player:
+    def __init__(self, name):
+        self.name = name
+
+
+class Game:
+    def __init__(self, player1, player2):
+        self.lst = [['_' for _ in range(3)] for _ in range(3)]
+        self.transponded_lst = [[self.lst[j][i] for j in range(len(self.lst))] for i in
+                                range(len(self.lst))]  # Транспорированная матрица
+        self.player = (player1, player2)
+
+    def check_winner(self, player, winner='Ничья') -> str:
+        count_diagonal, count_diagonal_transponded_lst = '', ''
+        for i in range(len(self.lst)):
+            # Счетчик перебирает матрицу на наличие кейсов с совпадениями (горизонталь, вертикаль, диагональ)
+            if self.lst[i].count('x') == 3 or self.lst[i].count('0') == 3 or self.transponded_lst[i].count('x') == 3 or \
+                    self.transponded_lst[
+                        i].count('0') == 3 or count_diagonal_transponded_lst.count(
+                'x') == 3 or count_diagonal_transponded_lst.count('0') == 3:
+                winner = player.name
+                return winner
+            else:
+                count_diagonal += self.lst[i][i]
+                count_diagonal_transponded_lst += self.transponded_lst[i][len(self.lst) - i - 1]
+        if count_diagonal.count('0') == 3 or count_diagonal.count('x') == 3 or count_diagonal_transponded_lst.count(
+                'x') == 3 or count_diagonal_transponded_lst.count('0') == 3:
+            winner = player.name
+            return winner  # возвращает победителя
+        else:
+            return winner  # Возвращает ничью
+
+    def print_lst(self):
+        """Печать таблицы"""
+        print(' ', 1, 2, 3)  # координаты вертикали
+        [print(_ + 1, *self.lst[_]) for _ in range(len(self.lst))]
+
+    def make_step(self, player) -> list:
+        coords = [int(_) - 1 for _ in input(
+            f'Введите координаты в формате: "Число по вертикали" "Число по горизонтали"(между ними пробел)\n').split()]
+
+        if player.name == 'Игрок 1' and self.lst[coords[0]][coords[1]] == '_':
+            self.lst[coords[0]][coords[1]] = 'x'
+        elif player.name == 'Игрок 2' and self.lst[coords[0]][coords[1]] == '_':
+            self.lst[coords[0]][coords[1]] = '0'
+        else:
+            print(f'Данная ячейка уже занята, пожалуйста, введите заново!')
+            self.make_step(player)
+        self.transponded_lst = [[self.lst[j][i] for j in range(len(self.lst))] for i in
+                                range(len(self.lst))]
+        return (self.lst, self.transponded_lst) # возвращает кортеж: текущий список + транспонированная матрица
+
+    def play(self) -> str:
+        count = 0  # счетчик шагов (от 0 до 8)
+        while count < 9:
+            self.print_lst()
+            self.lst, self.transponded_lst = self.make_step(
+                self.player[count % 2])  # вызываем функцию сделать шаг и присваиваем измененную матрицу переменной.
+            winner = self.check_winner(self.player[count % 2])
+            if winner != 'Ничья':
+                break
+            count += 1
+        self.print_lst()
+        print('Победителем стал: ', winner, '. ', 'Всего было произведено ', count + 1, ' шагов', sep='', end='.')
+
+
+a = Player('Игрок 1')
+b = Player('Игрок 2')
+game = Game(a, b)
+game.play()
